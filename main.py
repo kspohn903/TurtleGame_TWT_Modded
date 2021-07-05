@@ -1,22 +1,32 @@
-import math
-import random
-import turtle
-#import time
+import random, time, re, csv, math, turtle
+import numpy as np, pandas as pd, datetime, os
+import seaborn as sns, scipy as sci, matplotlib.pyplot as plt
+import matplotlib.transforms as mt, matplotlib.pylab as pl
+from matplotlib.transforms import offset_copy 
+from matplotlib.font_manager import FontProperties
 
 win_length = 500
 win_height = 500
-
-turtles = 8
-
+turtles = input("How many racers would you like? (input must be of int type)")
+while turtles is None or type(int(turtles)) != int:
+      turtles = input("How many racers would you like? (input must be of int type)")
 turtle.screensize(win_length, win_height)
-
 
 class racer(object):
     def __init__(self, color, pos):
         self.pos = pos
         self.color = color
         self.turt = turtle.Turtle()
-        self.turt.shape('turtle')
+        shapeType = input("Enter Turtle Shape Type Here: ")
+        shapeType= shapeType.lower()
+        if shapeType is None or type(shapeType) != str or shapeType.strip().lower() not in [
+           "arrow","circle", "square", "triangle", "classic"]:
+           shapeType = input("Enter Turtle Shape Type Here: ")
+           shapeType= shapeType.lower()
+        else:
+           shapeType = "turtle"
+        print(f"ShapeType is {shapeType}\n")
+        self.turt.shape(shapeType) 
         self.turt.color(color)
         self.turt.penup()
         self.turt.setpos(pos)
@@ -32,74 +42,59 @@ class racer(object):
         self.turt.penup()
         self.turt.setpos(self.pos)
 
-
 def setupFile(name, colors):
-    file = open(name, 'w')
+    file = open(name, 'w+')
     for color in colors:
-        file.write(color + ' 0 \n')
+        file.write('{}: 0\n'.format(color))
     file.close()
 
-
 def startGame():
+    global win_length, win_height, turtles
     tList = []
     turtle.clearscreen()
     turtle.hideturtle()
-    colors = ["red", "green", "blue", 'yellow', 'pink', 'orange', 'purple', 'black', 'grey']
-    start = -(win_length/2) + 20
-    for t in range(turtles):
+    n = input("How many colors do you want to set to the color map? (input must be of int type)")
+    while n is None or type(int(n)) != int:
+          n = input("How many colors do you want to set to the color map? (input must be of int type)")
+    n = int (n) 
+    colors = colors = pl.cm.jet(np.linspace(0,1,n))
+    start = 20 - (win_length/2)
+    for t in range(0, turtles, 1):
         newPosX = start + t*(win_length)//turtles
         tList.append(racer(colors[t],(newPosX, -230)))
         tList[t].turt.showturtle()
-
     run = True
     while run:
         for t in tList:
             t.move()
 
         maxColor = []
-        maxDis = 0
+        maxDist = 0
         for t in tList:
-            if t.pos[1] > 230 and t.pos[1] > maxDis:
-                maxDis = t.pos[1]
+            if t.pos[1] > 230 and t.pos[1] > maxDist:
+                maxDist = t.pos[1]
                 maxColor = []
                 maxColor.append(t.color)
-            elif t.pos[1] > 230 and t.pos[1] == maxDis:
-                maxDis = t.pos[1]
+            elif t.pos[1] > 230 and t.pos[1] == maxDist:
+                maxDist = t.pos[1]
                 maxColor.append(t.color)
 
         if len(maxColor) > 0:
             run = False
-            print('The winner is: ')
-            for win in maxColor:
-                print(win)
+            print(f'The winner is: {winCol for winCol in maxColor}\n')
 
     oldScore = []
     file = open('scores.txt', 'r')
     for line in file:
-        l = line.split()
-        color = l[0]
-        score = l[1]
-        oldScore.append([color, score])
-
+        l = line.split() 
+        color,score = l
+        oldScore.append([color,score])
     file.close()
 
-    file = open('scores.txt', 'w')
-
+    file = open('scores.txt', 'w+')
     for entry in oldScore:
-        for winner in maxColor:
-            if entry[0] == winner:
+        for winCol in maxColor:
+            if entry[0] == winCol:
                 entry[1] = int(entry[1]) + 1
-
-        file.write(str(entry[0]) + ' ' + str(entry[1]) + '\n')
-
-
+        file.write("{} {}\n".format(str(entry[0]), str(entry[1])) )
     file.close()
-
-
-start = input('Would you like to play')
-startGame()
-
-while True:
-    print('-----------------------------------')
-    start = input('Would you like to play again')
-    startGame()
