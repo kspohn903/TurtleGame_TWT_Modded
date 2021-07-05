@@ -19,11 +19,10 @@ class racer(object):
         self.turt = turtle.Turtle()
         shapeType = input("Enter Turtle Shape Type Here: ")
         shapeType= shapeType.lower()
-        if shapeType is None or type(shapeType) != str or shapeType.strip().lower() not in [
-           "arrow","circle", "square", "triangle", "classic"]:
+        while shapeType is None or type(shapeType) != str:
            shapeType = input("Enter Turtle Shape Type Here: ")
            shapeType= shapeType.lower()
-        else:
+        if shapeType.strip().lower() not in ["arrow","circle", "square", "triangle", "classic"]:
            shapeType = "turtle"
         print(f"ShapeType is {shapeType}\n")
         self.turt.shape(shapeType) 
@@ -78,7 +77,7 @@ def startGame():
             elif t.pos[1] > 230 and t.pos[1] == maxDist:
                 maxDist = t.pos[1]
                 maxColor.append(t.color)
-
+                  
         if len(maxColor) > 0:
             run = False
             print(f'The winner is: {winCol for winCol in maxColor}\n')
